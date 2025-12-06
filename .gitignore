@@ -1,0 +1,37 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.iml
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node / React / frontend
+node_modules/
+dist/
+build/
+npm-debug.log
+yarn-error.log
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+*.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# IntelliJ
+out/

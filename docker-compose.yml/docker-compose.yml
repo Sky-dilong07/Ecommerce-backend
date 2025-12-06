@@ -1,0 +1,209 @@
+version: '3.8'
+
+services:
+
+  # ------------------ Eureka Discovery Server ------------------
+  discovery-server:
+    image: discovery-server:latest
+    build:
+      context: ./discovery-server
+      dockerfile: Dockerfile
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    networks:
+      - backend-net
+
+  # ------------------ Gateway Service ------------------
+  gateway-service:
+    image: gateway-service:latest
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - discovery-server
+    networks:
+      - backend-net
+
+  # ------------------ Auth Service ------------------
+  auth-service:
+    image: auth-service:latest
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SERVER_PORT=8082
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - discovery-server
+    networks:
+      - backend-net
+
+  # ------------------ User Service ------------------
+  user-service:
+    image: user-service:latest
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "8090:8090"
+    environment:
+      - SERVER_PORT=8090
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - discovery-server
+    networks:
+      - backend-net
+
+  # ------------------ Product Service ------------------
+  product-service:
+    image: product-service:latest
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: product-service
+    ports:
+      - "8091:8091"
+    environment:
+      - SERVER_PORT=8091
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - discovery-server
+    networks:
+      - backend-net
+
+  # ------------------ Inventory Service ------------------
+  inventory-service:
+    image: inventory-service:latest
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: inventory-service
+    ports:
+      - "8092:8092"
+    environment:
+      - SERVER_PORT=8092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - discovery-server
+      - redis
+    networks:
+      - backend-net
+
+  # ------------------ Cart Service ------------------
+  cart-service:
+    image: cart-service:latest
+    build:
+      context: ./cart-service
+      dockerfile: Dockerfile
+    container_name: cart-service
+    ports:
+      - "8093:8093"
+    environment:
+      - SERVER_PORT=8093
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - discovery-server
+      - redis
+    networks:
+      - backend-net
+
+  # ------------------ Order Service ------------------
+  order-service:
+    image: order-service:latest
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    ports:
+      - "8094:8094"
+    environment:
+      - SERVER_PORT=8094
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - discovery-server
+      - kafka
+    networks:
+      - backend-net
+
+  # ------------------ Payment Service ------------------
+  payment-service:
+    image: payment-service:latest
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: payment-service
+    ports:
+      - "8097:8097"
+    environment:
+      - SERVER_PORT=8097
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - discovery-server
+    networks:
+      - backend-net
+
+  # ------------------ Notification Service ------------------
+  notification-service:
+    image: notification-service:latest
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    ports:
+      - "8098:8098"
+    environment:
+      - SERVER_PORT=8098
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - discovery-server
+      - kafka
+    networks:
+      - backend-net
+
+  # ------------------ Redis ------------------
+  redis:
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-net
+
+  # ------------------ Kafka (KRaft mode) ------------------
+  kafka:
+    image: bitnami/kafka:3.5
+    container_name: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - "9092:9092"
+    networks:
+      - backend-net
+
+# ------------------ Network ------------------
+networks:
+  backend-net:
+    driver: bridge

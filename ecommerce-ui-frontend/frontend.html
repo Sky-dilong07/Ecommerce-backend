@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TooEase — Unified Frontend</title>
+    <style>
+        /* ---------- Reset & Base ---------- */
+        *{box-sizing:border-box;margin:0;padding:0}
+        :root{
+          --bg:#0b0f14;--card:#0f1720;--accent:#00d4ff;--accent-2:#7c3aed;--muted:#98a0ab
+        }
+        body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,'Helvetica Neue',Arial;color:#e6eef6;background:radial-gradient(1200px 600px at 10% 10%, rgba(7,18,28,0.7), transparent), linear-gradient(180deg,#071026 0%, #07151a 100%),var(--bg);min-height:100vh}
+        a{color:inherit;text-decoration:none}
+
+        /* ---------- Header ---------- */
+        header{display:flex;align-items:center;justify-content:space-between;padding:18px 36px;background:linear-gradient(90deg,rgba(255,255,255,0.03),transparent);backdrop-filter:blur(6px);position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,0.02)}
+        .brand{display:flex;align-items:center;gap:12px}
+        .logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#012;box-shadow:0 8px 30px rgba(124,58,237,0.12)}
+        h1{font-size:18px;color:linear-gradient(90deg,var(--accent),var(--accent-2));letter-spacing:0.6px}
+        nav{display:flex;gap:10px;align-items:center}
+        .nav-btn{background:transparent;border:0;color:#cfe9f8;padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;transition:all .22s}
+        .nav-btn:hover{transform:translateY(-3px);background:rgba(255,255,255,0.03)}
+
+        /* ---------- Layout ---------- */
+        .wrap{max-width:1200px;margin:28px auto;padding:20px}
+        .grid{display:grid;grid-template-columns:1fr 360px;gap:28px}
+
+        /* ---------- Left: Main Area ---------- */
+        .main{min-height:60vh}
+        .panel{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:14px;padding:18px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 22px rgba(2,6,23,0.6)}
+
+        /* ---------- Product Cards ---------- */
+        .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+        .card{background:linear-gradient(180deg,rgba(255,255,255,0.015),transparent);border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:10px;transition:transform .18s,box-shadow .18s}
+        .card:hover{transform:translateY(-6px);box-shadow:0 18px 60px rgba(4,12,20,0.6)}
+        .thumb{height:140px;border-radius:10px;background:linear-gradient(90deg,rgba(0,212,255,0.08),rgba(124,58,237,0.06));display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
+        .p-title{font-weight:700}
+        .p-desc{color:var(--muted);font-size:13px}
+        .row{display:flex;justify-content:space-between;align-items:center}
+        .price{font-weight:800;color:var(--accent);}
+        .btn{padding:8px 10px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+        .btn-primary{background:var(--accent);color:#052;}
+        .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:#d9f4ff}
+
+        /* ---------- Right: Sidebar (Cart + Actions) ---------- */
+        .sidebar{position:sticky;top:92px}
+        .cart-item{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent)}
+        .ci-info{flex:1}
+        .ci-title{font-weight:700}
+        .ci-meta{color:var(--muted);font-size:13px}
+        .qty{display:flex;gap:8px;align-items:center}
+        .small{font-size:13px;color:var(--muted)}
+
+        /* ---------- Forms & Auth ---------- */
+        .auth-card{max-width:420px;margin:0 auto;padding:18px}
+        input,select{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:#e8f6ff;margin-bottom:10px}
+        .muted{color:var(--muted)}
+
+        /* ---------- Footer ---------- */
+        footer{text-align:center;padding:18px;color:var(--muted);margin-top:40px}
+
+        /* ---------- Responsive ---------- */
+        @media (max-width:980px){.grid{grid-template-columns:1fr}.sidebar{position:static;margin-top:18px}}
+    </style>
+</head>
+<body>
+<header>
+    <div class="brand">
+        <div class="logo">TE</div>
+        <div>
+            <div style="font-weight:800;color:#dffcff">TooEase</div>
+            <div style="font-size:12px;color:var(--muted)">AI Commerce — Unified Frontend</div>
+        </div>
+    </div>
+
+    <nav id="mainNav">
+        <button class="nav-btn" onclick="showView('products')">Products</button>
+        <button class="nav-btn" onclick="showView('orders')">Orders</button>
+        <button class="nav-btn" onclick="showView('checkout')">Checkout</button>
+        <button class="nav-btn" id="authBtn" onclick="showView('auth')">Login / Register</button>
+    </nav>
+</header>
+
+<main class="wrap">
+    <div class="grid">
+        <section class="main panel" id="viewArea">
+            <!-- dynamic content injected here -->
+        </section>
+
+        <aside class="sidebar panel">
+            <h3 style="margin-bottom:12px">Cart</h3>
+            <div id="cartBox">
+                <div class="small muted">Cart is empty</div>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:8px">
+                <button class="btn btn-primary" id="checkoutBtn" onclick="goToCheckout()">Proceed to Checkout</button>
+                <button class="btn btn-ghost" onclick="clearCart()">Clear</button>
+            </div>
+            <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+            <div>
+                <div class="small muted">Logged in as</div>
+                <div id="userBadge" style="font-weight:700;color:var(--accent);margin-top:6px">Guest</div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<footer>Built for TooEase — Unified HTML/CSS/JS frontend for your microservices</footer>
+
+<script>
+    /***********************
+     * CONFIG
+     ***********************/
+    const BASE = 'http://localhost:8081'; // API Gateway base (change if needed)
+    let state = { token: localStorage.getItem('token') || null, user: null, cart: [] };
+
+    // Helpers
+    function setToken(t){ state.token = t; if(t) localStorage.setItem('token', t); else localStorage.removeItem('token'); updateAuthUI(); }
+    function updateAuthUI(){ document.getElementById('userBadge').innerText = state.user ? state.user.name+' ('+state.user.email+')' : 'Guest'; document.getElementById('authBtn').innerText = state.user? 'Logout':'Login / Register'; }
+
+    async function api(path, opts={}){
+      const headers = opts.headers || {};
+      headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+      if(state.token) headers['Authorization'] = 'Bearer '+state.token;
+      const res = await fetch(BASE+path, {...opts, headers});
+      if(!res.ok){
+        const tv = await res.text().catch(()=>null);
+        let msg = tv || res.statusText || 'API Error';
+        throw new Error(msg);
+      }
+      const ct = res.headers.get('content-type') || '';
+      if(ct.includes('application/json')) return res.json();
+      return res.text();
+    }
+
+    // Initial view
+    showView('products');
+    updateAuthUI();
+    loadCartFromServer();
+
+    /***********************
+     * VIEW RENDERERS
+     ***********************/
+    async function showView(view){
+      const area = document.getElementById('viewArea');
+      area.innerHTML = '';
+      if(view==='products'){
+        area.innerHTML = `<h2 style="margin-bottom:12px">Discover Products</h2><div id="productsGrid" class="products"></div>`;
+        await loadProducts();
+      } else if(view==='auth'){
+        renderAuth(area);
+      } else if(view==='orders'){
+        area.innerHTML = `<h2 style="margin-bottom:12px">Your Orders</h2><div id="ordersList"><div class="muted">Loading...</div></div>`;
+        await loadOrders();
+      } else if(view==='checkout'){
+        area.innerHTML = `<h2 style="margin-bottom:12px">Checkout</h2><div id="checkoutArea"></div>`;
+        renderCheckout(document.getElementById('checkoutArea'));
+      }
+    }
+
+    function renderAuth(container){
+      container.innerHTML = `
+        <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+          <div class="auth-card panel" style="flex:1">
+            <h3>Login</h3>
+            <input id="loginEmail" placeholder="Email" />
+            <input id="loginPass" placeholder="Password" type="password" />
+            <button class="btn btn-primary" onclick="doLogin()">Login</button>
+            <div class="small muted" style="margin-top:8px">Use your registered account</div>
+          </div>
+
+          <div class="auth-card panel" style="flex:1">
+            <h3>Create account</h3>
+            <input id="regName" placeholder="Full name" />
+            <input id="regEmail" placeholder="Email" />
+            <input id="regPass" placeholder="Password" type="password" />
+            <button class="btn btn-primary" onclick="doRegister()">Register</button>
+            <div class="small muted" style="margin-top:8px">We'll sign you in after registration</div>
+          </div>
+        </div>
+      `;
+    }
+
+    /***********************
+     * AUTH
+     ***********************/
+    async function doLogin(){
+      try{
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPass').value.trim();
+        if(!email||!password) return alert('Provide email & password');
+        const data = await api('/api/auth/login',{method:'POST',body:JSON.stringify({email,password})});
+        // Expecting AuthResponse: may contain token and refreshToken
+        if(data.token){ setToken(data.token); await loadMe(); alert('Welcome back!'); showView('products'); loadProducts(); }
+        else alert(data.message || 'Login succeeded but token missing');
+      }catch(e){ alert('Login failed: '+e.message); }
+    }
+
+    async function doRegister(){
+      try{
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPass').value.trim();
+        if(!name||!email||!password) return alert('All fields are required');
+        const data = await api('/api/auth/register',{method:'POST',body:JSON.stringify({name,email,password})});
+        if(data.token){ setToken(data.token); await loadMe(); alert('Registered & logged in'); showView('products'); loadProducts(); }
+        else{ alert(data.message || 'Registration response received'); }
+      }catch(e){ alert('Register failed: '+e.message); }
+    }
+
+    async function doLogout(){ setToken(null); state.user=null; updateAuthUI(); alert('Logged out'); showView('products'); }
+
+    // load /api/auth/me to get user details
+    async function loadMe(){
+      try{ const me = await api('/api/auth/me'); state.user = me; updateAuthUI(); return me; }catch(e){ console.warn('me failed',e); state.user=null; updateAuthUI(); }
+    }
+
+    // allow clicking auth button to logout when logged in
+    document.getElementById('authBtn').addEventListener('click', ()=>{ if(state.user) doLogout(); else showView('auth'); });
+
+    /***********************
+     * PRODUCTS
+     ***********************/
+    async function loadProducts(){
+      try{
+        const prods = await api('/api/products/');
+        const grid = document.getElementById('productsGrid'); grid.innerHTML='';
+        if(!Array.isArray(prods) || prods.length===0){ grid.innerHTML='<div class="muted">No products found</div>'; return; }
+        prods.forEach(p=>{
+          const card = document.createElement('div'); card.className='card';
+          card.innerHTML = `
+            <div class="thumb">${(p.name||'Product').slice(0,2).toUpperCase()}</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div class="p-title">${escapeHtml(p.name||'Untitled')}</div>
+              <div class="p-desc">${escapeHtml(p.description||'No description')}</div>
+              <div class="row">
+                <div class="price">₹${(p.price||0).toFixed(2)}</div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-ghost" onclick='viewProduct(${p.id})'>View</button>
+                  <button class="btn btn-primary" onclick='addToCartFromProduct(${p.id})'>Add</button>
+                </div>
+              </div>
+            </div>`;
+          grid.appendChild(card);
+        });
+      }catch(e){ document.getElementById('productsGrid').innerHTML = `<div class="muted">Failed to load products: ${e.message}</div>`; }
+    }
+
+    function viewProduct(id){
+      showView('products');
+      const area = document.getElementById('viewArea');
+      area.innerHTML = '<div class="panel"><div class="muted">Loading product...</div></div>';
+      api('/api/products/'+id).then(p=>{
+        area.innerHTML = `
+          <div class="panel">
+            <div style="display:flex;gap:18px;align-items:center">
+              <div style="width:220px;height:160px;border-radius:12px;background:linear-gradient(90deg,rgba(0,212,255,0.06),rgba(124,58,237,0.06));display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--accent)">${(p.name||'').slice(0,2).toUpperCase()}</div>
+              <div style="flex:1">
+                <h2>${escapeHtml(p.name)}</h2>
+                <div class="muted">${escapeHtml(p.description||'')}</div>
+                <div style="margin-top:12px" class="row"><div class="price">₹${(p.price||0).toFixed(2)}</div><div><button class="btn btn-primary" onclick='addToCart(${p.id},"${escapeAttr(p.name)}",${p.price||0})'>Add to cart</button></div></div>
+              </div>
+            </div>
+          </div>`;
+      }).catch(e=>area.innerHTML=`<div class="panel">Error: ${e.message}</div>`);
+    }
+
+    /***********************
+     * CART
+     ***********************/
+    async function addToCartFromProduct(id){
+      // fetch product to get details
+      try{ const p = await api('/api/products/'+id); await addToCart(p.id,p.name,p.price,1); }
+      catch(e){ alert('Add to cart failed: '+e.message); }
+    }
+
+    async function addToCart(productId, productName, price, quantity=1){
+      if(!state.user){ if(!confirm('You must login to add to cart. Login now?')) return showView('auth'); }
+      try{
+        const body = { productId: String(productId), productName, quantity, price };
+        const res = await api(`/cart/add?userId=${encodeURIComponent(state.user?.id||state.user?.email||'guest')}`,{method:'POST',body:JSON.stringify(body)});
+        // server returns Cart, update local cart view
+        state.cart = res.items || [];
+        renderCartItems();
+        alert('Added to cart');
+      }catch(e){ alert('Add failed: '+e.message); }
+    }
+
+    async function loadCartFromServer(){
+      if(!state.user){ renderCartItems(); return; }
+      try{
+        const c = await api('/cart/'+encodeURIComponent(state.user.id||state.user.email)); state.cart = c.items||[]; renderCartItems(); }catch(e){ renderCartItems(); }
+    }
+
+    function renderCartItems(){
+      const box = document.getElementById('cartBox'); box.innerHTML='';
+      if(!state.cart || state.cart.length===0){ box.innerHTML='<div class="muted">Cart is empty</div>'; return; }
+      let total=0;
+      state.cart.forEach(it=>{
+        total += (it.price||0)*(it.quantity||0);
+        const el = document.createElement('div'); el.className='cart-item';
+        el.innerHTML = `
+          <div style="width:60px;height:60px;border-radius:8px;background:linear-gradient(90deg,rgba(0,212,255,0.06),rgba(124,58,237,0.06));display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)">${(it.productName||'P').slice(0,2).toUpperCase()}</div>
+          <div class="ci-info">
+            <div class="ci-title">${escapeHtml(it.productName)}</div>
+            <div class="ci-meta">₹${(it.price||0).toFixed(2)} • x${it.quantity}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <div class="qty">
+              <button class="btn btn-ghost" onclick='updateQty("${escapeAttr(it.productId)}",${Math.max(0,(it.quantity||1)-1)})'>-</button>
+              <div class="small">${it.quantity}</div>
+              <button class="btn btn-ghost" onclick='updateQty("${escapeAttr(it.productId)}",${(it.quantity||1)+1})'>+</button>
+            </div>
+            <button class="btn btn-ghost" onclick='removeFromCart("${escapeAttr(it.productId)}")'>Remove</button>
+          </div>`;
+        box.appendChild(el);
+      });
+      const summary = document.createElement('div'); summary.style.marginTop='12px'; summary.innerHTML = `<div style="font-weight:800">Total: ₹${total.toFixed(2)}</div>`;
+      box.appendChild(summary);
+    }
+
+    async function updateQty(productId, newQty){
+      if(newQty<=0) return removeFromCart(productId);
+      try{
+        const body = { productId:String(productId), quantity:newQty };
+        const res = await api(`/cart/update?userId=${encodeURIComponent(state.user.id||state.user.email)}`,{method:'PUT',body:JSON.stringify(body)});
+        state.cart = res.items||[]; renderCartItems();
+      }catch(e){ alert('Update failed: '+e.message); }
+    }
+
+    async function removeFromCart(productId){
+      try{
+        const res = await api(`/cart/remove/${encodeURIComponent(state.user.id||state.user.email)}/${encodeURIComponent(productId)}`,{method:'DELETE'});
+        state.cart = res.items||[]; renderCartItems();
+      }catch(e){ alert('Remove failed: '+e.message); }
+    }
+
+    async function clearCart(){ if(!state.user) return alert('Login to clear cart'); try{ await api(`/cart/clear/${encodeURIComponent(state.user.id||state.user.email)}`,{method:'DELETE'}); state.cart=[]; renderCartItems(); }catch(e){ alert('Clear failed: '+e.message); } }
+
+    /***********************
+     * ORDERS
+     ***********************/
+    async function loadOrders(){
+      try{
+        if(!state.user) return document.getElementById('ordersList').innerHTML = '<div class="muted">Login to see your orders</div>';
+        const list = await api(`/api/orders/user/${encodeURIComponent(state.user.id||state.user.email)}`);
+        const el = document.getElementById('ordersList'); el.innerHTML='';
+        if(!Array.isArray(list) || list.length===0) return el.innerHTML='<div class="muted">No orders yet</div>';
+        list.forEach(o=>{
+          const card = document.createElement('div'); card.className='card'; card.style.marginBottom='10px';
+          const items = (o.items||[]).map(it=>`${escapeHtml(it.productId)} x${it.quantity}`).join(', ');
+          card.innerHTML = `<div style="display:flex;justify-content:space-between"><div><div style="font-weight:800">Order #${o.id}</div><div class="muted">${items}</div></div><div style="text-align:right"><div style="font-weight:800">₹${(o.totalAmount||0).toFixed(2)}</div><div class="small muted">${o.status||'PLACED'}</div></div></div>`;
+          el.appendChild(card);
+        });
+      }catch(e){ document.getElementById('ordersList').innerHTML = `<div class="muted">Failed to load orders: ${e.message}</div>`; }
+    }
+
+    /***********************
+     * CHECKOUT & PAYMENT
+     ***********************/
+    function goToCheckout(){ showView('checkout'); }
+
+    function renderCheckout(container){
+      if(!state.user) return container.innerHTML = '<div class="muted">Please login to checkout</div>';
+      const total = state.cart.reduce((s,it)=>s + (it.price||0)*(it.quantity||0),0);
+      container.innerHTML = `
+        <div class="panel">
+          <h3>Order Summary</h3>
+          <div style="margin:12px 0">${state.cart.map(it=>`<div style="display:flex;justify-content:space-between;margin:6px 0"><div>${escapeHtml(it.productName)} x${it.quantity}</div><div>₹${((it.price||0)*it.quantity).toFixed(2)}</div></div>`).join('')}</div>
+          <div style="font-weight:800">Total: ₹${total.toFixed(2)}</div>
+          <div style="margin-top:12px">Payment Method:
+            <select id="payMode" style="margin-top:8px"><option value="CARD">Card</option><option value="UPI">UPI</option><option value="COD">COD</option></select>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="placeOrder()">Place Order</button>
+            <button class="btn btn-ghost" onclick="showView('products')">Continue Shopping</button>
+          </div>
+        </div>`;
+    }
+
+    async function placeOrder(){
+      if(!state.user) return alert('Login required');
+      if(!state.cart || state.cart.length===0) return alert('Cart empty');
+      try{
+        const orderReq = { userId: String(state.user.id||state.user.email), items: state.cart.map(it=>({ productId: it.productId, quantity: it.quantity, price: it.price })) };
+        const saved = await api('/api/orders',{method:'POST',body:JSON.stringify(orderReq)});
+        alert('Order placed — ID: '+(saved.id||saved.orderId||'n/a'));
+        // after placing order, call payment mock
+        const orderId = saved.id || saved.orderId;
+        const total = state.cart.reduce((s,it)=>s+(it.price||0)*(it.quantity||0),0);
+        if(confirm('Pay now?')){
+          const pay = await api(`/api/payments/charge?orderId=${encodeURIComponent(orderId)}&userId=${encodeURIComponent(state.user.id||state.user.email)}&amount=${encodeURIComponent(total)}`,{method:'POST'});
+          alert('Payment '+pay.status+' (id: '+pay.paymentId+')');
+        }
+        // clear local state cart and refresh
+        state.cart = [];
+        renderCartItems();
+        showView('orders'); loadOrders();
+      }catch(e){ alert('Place order failed: '+e.message); }
+    }
+
+    /***********************
+     * UTIL
+     ***********************/
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"})[c]); }
+    function escapeAttr(s){ return escapeHtml(String(s||'')).replace(/"/g,'\"'); }
+
+    // try to fetch me on load
+    (async()=>{ if(state.token) await loadMe(); })();
+</script>
+</body>
+</html>
